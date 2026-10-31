@@ -11,4 +11,4 @@ ruff==0.17.3
 
 # Audio I/O (Raspberry Pi only)
 # Requires system packages: sudo apt-get install portaudio19-dev python3-dev
-# pyaudio==0.2.14
+pyaudio==0.2.14; platform_system == "Linux" and platform_machine == "aarch64"

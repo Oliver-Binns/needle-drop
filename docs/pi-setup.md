@@ -48,6 +48,17 @@ Apply:
 sudo systemctl daemon-reload
 ```
 
+### Device config
+
+Create `/etc/needle-drop/config.yaml` (readable by `needledrop`); `speaker_name` is required:
+
+```yaml
+speaker_name: "Living Room"   # exact, case-sensitive OwnTone output name
+```
+
+Also install `portaudio19-dev python3-dev` before `pip install -r requirements.txt` (builds pyaudio),
+and make sure OwnTone watches the `owntone_pipe` path (default `/srv/music/vinyl.pipe`).
+
 ## 3) Enable and start
 
 ```bash

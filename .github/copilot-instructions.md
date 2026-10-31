@@ -7,8 +7,10 @@ timer files, `config/default.yaml`, `requirements.txt`, `docs/design.md`, and
 CI (ruff + pytest in `.github/workflows/validate-pr.yml`). The audio path is
 implemented (`audio_source.py`, `audio_sink.py`, `pipeline.py`: sound card →
 queue → OwnTone pipe, with an undelivered-bytes counter; tested in
-`tests/test_pipeline.py`). The gate, status page and calibrate command are
-**not yet implemented**, and `__main__.py` is still a placeholder. The gate design
+`tests/test_pipeline.py`). `__main__.py` wires the config reader, audio path and
+OwnTone speaker selection into an always-on streamer (no gate yet; it refuses to
+start without `speaker_name`). The gate, status page and calibrate command are
+**not yet implemented**. The gate design
 below is the target; follow it when implementing the listener unless the user
 directs otherwise. Keep this section current as features land.
 
@@ -27,7 +29,7 @@ Record player → cable → HiFiBerry → needle-drop → OwnTone → HomePod
 ## Repository layout
 
 ```
-src/needledrop/        the listener program (stub; not yet implemented)
+src/needledrop/        the listener program (always-on streaming; gate not yet implemented)
 tests/                  automatic checks
 config/default.yaml     standard settings (committed, sensible defaults)
 requirements.txt
