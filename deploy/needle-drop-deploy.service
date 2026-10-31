@@ -1,0 +1,18 @@
+[Unit]
+Description=needle-drop update check
+Documentation=https://github.com/Oliver-Binns/needle-drop
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=needledrop
+Group=audio
+WorkingDirectory=/opt/needle-drop
+
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/opt/needle-drop/deploy/update.sh
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=needle-drop-deploy

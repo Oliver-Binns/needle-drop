@@ -1,0 +1,31 @@
+[Unit]
+Description=needle-drop: Automatic AirPlay streaming from record players
+Documentation=https://github.com/Oliver-Binns/needle-drop
+After=network-online.target sound.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=needledrop
+Group=audio
+WorkingDirectory=/opt/needle-drop
+
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/opt/needle-drop/.venv/bin/python3 -m needledrop
+
+# Restart policy: critical for unattended operation
+Restart=always
+RestartSec=5
+
+# Resource limits
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=needle-drop
+
+# Allow graceful shutdown
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target
