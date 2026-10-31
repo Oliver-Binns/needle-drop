@@ -129,6 +129,8 @@ sudo systemctl enable --now needle-drop.service needle-drop-deploy.timer
 
 Make sure OwnTone is also enabled at boot (`sudo systemctl enable owntone`).
 
+For a full copy/paste bootstrap and first-run troubleshooting, see [`docs/pi-setup.md`](docs/pi-setup.md).
+
 ### 4. Calibrate
 
 ```bash
@@ -241,6 +243,8 @@ needle-drop/
 | Sound is distorted | Lower the input level in `alsamixer` so loud pops don't clip |
 | Speaker won't pair | Check the speaker's access setting in the Apple Home app |
 | Nothing after a power cut | `systemctl status needle-drop owntone`, and check the status page |
+| `No module named needledrop` | Ensure the service has `Environment=\"PYTHONPATH=/opt/needle-drop/src\"`, then `systemctl daemon-reload && systemctl restart needle-drop` |
+| `No module named needledrop.__main__` | Pull latest `main` (or deploy latest merge) so `src/needledrop/__main__.py` is present |
 
 ## Credits and notices
 
