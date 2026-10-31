@@ -9,7 +9,13 @@ implemented (`audio_source.py`, `audio_sink.py`, `pipeline.py`: sound card →
 queue → OwnTone pipe, with an undelivered-bytes counter; tested in
 `tests/test_pipeline.py`). `__main__.py` wires the config reader, audio path and
 OwnTone speaker selection into an always-on streamer (no gate yet; it refuses to
-start without `speaker_name`). The gate, status page and calibrate command are
+start without `speaker_name`). The gate state machine is implemented
+(`level.py`: dBFS level metering with optional high-pass pre-emphasis for
+crackle detection; `gate.py`: Idle → Arming → Streaming → Cooling down → Idle,
+with a pre-roll buffer and a `fade_out_s` on/off switch — the actual fade
+shaping is a later task, issue #23; tested in `tests/test_level.py` and
+`tests/test_gate.py`). The gate is **not yet wired into `__main__.py`**
+(that's issue #17); the status page and calibrate command are also
 **not yet implemented**. The gate design
 below is the target; follow it when implementing the listener unless the user
 directs otherwise. Keep this section current as features land.
