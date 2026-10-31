@@ -19,6 +19,7 @@ filter_freq_hz: 3000      # High-pass filter frequency if enabled (Hz)
 
 # OwnTone connection
 owntone_pipe: /srv/music/vinyl.pipe   # Path to the named pipe for audio hand-off
+queue_limit_s: 30                     # Max audio held in memory if OwnTone is slow (s); overflow is counted, never silent
 owntone_timeout_s: 10                 # Timeout waiting for OwnTone to respond (s)
 
 # Speaker configuration

@@ -4,9 +4,11 @@
 
 Scaffolding is in place: the update script and its tests, systemd service and
 timer files, `config/default.yaml`, `requirements.txt`, `docs/design.md`, and
-CI (ruff + pytest in `.github/workflows/validate-pr.yml`). The listener itself
-is **not yet implemented** — `src/needledrop/__init__.py` is a stub and
-`tests/test_placeholder.py` is the only listener-side test. The gate design
+CI (ruff + pytest in `.github/workflows/validate-pr.yml`). The audio path is
+implemented (`audio_source.py`, `audio_sink.py`, `pipeline.py`: sound card →
+queue → OwnTone pipe, with an undelivered-bytes counter; tested in
+`tests/test_pipeline.py`). The gate, status page and calibrate command are
+**not yet implemented**, and `__main__.py` is still a placeholder. The gate design
 below is the target; follow it when implementing the listener unless the user
 directs otherwise. Keep this section current as features land.
 
