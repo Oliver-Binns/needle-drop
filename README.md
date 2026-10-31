@@ -93,7 +93,7 @@ The speaker may play a couple of seconds behind the record, but every moment of 
 
 1. Fit the HiFiBerry onto the Pi's header.
 2. Install Raspberry Pi OS Lite, set up Wi-Fi and SSH.
-3. Add the HiFiBerry overlay to `/boot/firmware/config.txt` (this repo's docs will confirm the exact line for the DAC+ ADC) and reboot.
+3. Add the HiFiBerry overlay to `/boot/firmware/config.txt`
 4. Check the card is detected: `arecord -l` should list the HiFiBerry.
 5. Set the switch on the back of the record player to **LINE** and connect it to the HiFiBerry input.
 
@@ -223,7 +223,6 @@ needle-drop/
 ├── config/default.yaml    standard settings
 ├── requirements.txt
 ├── deploy/                update script and service files
-├── docs/design.md         full technical design
 └── .github/workflows/     checks that run on GitHub
 ```
 
