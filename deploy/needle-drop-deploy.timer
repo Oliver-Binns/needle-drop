@@ -1,0 +1,19 @@
+[Unit]
+Description=needle-drop update check timer
+Documentation=https://github.com/Oliver-Binns/needle-drop
+
+[Timer]
+# Run 2 minutes after boot
+OnBootSec=2min
+
+# Then every 5 minutes
+OnUnitActiveSec=5min
+
+# Catch up on missed runs (e.g., if system was asleep)
+Persistent=true
+
+# The service to run
+Unit=needle-drop-deploy.service
+
+[Install]
+WantedBy=timers.target
