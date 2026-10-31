@@ -2,11 +2,13 @@
 
 ## Project status
 
-This repository currently contains only `README.md` and `LICENSE` — no source
-code, tests, or CI configuration exist yet. The structure, commands, and
-conventions below are the **planned** design as described in the README.
-When implementing code, follow this plan unless the user directs otherwise,
-and update this file once real tooling (ruff config, pytest, workflows) lands.
+Scaffolding is in place: the update script and its tests, systemd service and
+timer files, `config/default.yaml`, `requirements.txt`, `docs/design.md`, and
+CI (ruff + pytest in `.github/workflows/validate-pr.yml`). The listener itself
+is **not yet implemented** — `src/needledrop/__init__.py` is a stub and
+`tests/test_placeholder.py` is the only listener-side test. The gate design
+below is the target; follow it when implementing the listener unless the user
+directs otherwise. Keep this section current as features land.
 
 ## What it does
 
@@ -20,10 +22,10 @@ named pipe; OwnTone does the actual AirPlay streaming.
 Record player → cable → HiFiBerry → needle-drop → OwnTone → HomePod
 ```
 
-## Planned repository layout
+## Repository layout
 
 ```
-src/needledrop/        the listener program
+src/needledrop/        the listener program (stub; not yet implemented)
 tests/                  automatic checks
 config/default.yaml     standard settings (committed, sensible defaults)
 requirements.txt
@@ -78,10 +80,14 @@ The Pi pulls updates itself (pull-based, nothing pushed to it):
   tolerate dependencies (sound card, OwnTone, speaker) not being ready yet by
   waiting/retrying rather than failing.
 
-## Build, test, and lint (planned)
+## Build, test, and lint
 
-- Style checks: **ruff**
+- Dependencies: `pip install -r requirements.txt` (pinned versions). Dependabot
+  (`.github/dependabot.yml`) opens weekly grouped PRs for pip and GitHub Actions.
+- Style checks: **ruff** (`ruff check .` and `ruff format --check .`; no ruff config file, so defaults apply)
 - Tests: **pytest** (run a single test with `pytest tests/path/to/test_file.py::test_name`)
+- CI runs on Python **3.13** (`.github/workflows/validate-pr.yml`); dependency
+  pins must install and pass on 3.13.
 - Every change goes through a pull request; ruff and pytest must pass before
   merging to `main`. Anything merged to `main` auto-deploys to the Pi via the
   update timer described above.
@@ -92,4 +98,4 @@ When creating a PR that resolves a GitHub issue:
 
 - **Always include "Closes: #X"** in the commit message or PR description (where X is the issue number)
 - This automatically closes the issue when the PR is merged
-- See [CONTRIBUTING.md](CONTRIBUTING.md) for the full PR submission guide
+- See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full PR submission guide
