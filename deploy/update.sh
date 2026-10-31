@@ -13,6 +13,20 @@ log() {
     printf '[needle-drop-deploy] %s\n' "$*"
 }
 
+run_systemctl() {
+    if [ -n "${NEEDLEDROP_SYSTEMCTL_BIN:-}" ]; then
+        "${NEEDLEDROP_SYSTEMCTL_BIN}" "$@"
+        return
+    fi
+
+    if command -v sudo >/dev/null 2>&1; then
+        sudo -n systemctl "$@"
+        return
+    fi
+
+    systemctl "$@"
+}
+
 is_safe_to_update() {
     # Placeholder until the real gate/status check is implemented.
     return 0
@@ -39,7 +53,7 @@ install_dependencies() {
 
 wait_for_service_health() {
     sleep "$HEALTH_DELAY_S"
-    systemctl is-active --quiet "$SERVICE_NAME"
+    run_systemctl is-active --quiet "$SERVICE_NAME"
 }
 
 rollback() {
@@ -48,7 +62,7 @@ rollback() {
     log "Rolling back to commit: $backup_commit"
     git reset --hard "$backup_commit"
     install_dependencies
-    systemctl restart "$SERVICE_NAME"
+    run_systemctl restart "$SERVICE_NAME"
 
     if wait_for_service_health; then
         log "Rollback succeeded; service is healthy."
@@ -87,7 +101,7 @@ main() {
 
     if git reset --hard "$remote_commit" \
         && install_dependencies \
-        && systemctl restart "$SERVICE_NAME" \
+        && run_systemctl restart "$SERVICE_NAME" \
         && wait_for_service_health; then
         log "Update applied successfully; service is healthy."
         return 0
