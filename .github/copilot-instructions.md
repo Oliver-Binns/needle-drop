@@ -85,3 +85,11 @@ The Pi pulls updates itself (pull-based, nothing pushed to it):
 - Every change goes through a pull request; ruff and pytest must pass before
   merging to `main`. Anything merged to `main` auto-deploys to the Pi via the
   update timer described above.
+
+## Pull Requests
+
+When creating a PR that resolves a GitHub issue:
+
+- **Always include "Closes: #X"** in the commit message or PR description (where X is the issue number)
+- This automatically closes the issue when the PR is merged
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for the full PR submission guide
