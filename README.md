@@ -214,6 +214,8 @@ sequenceDiagram
 
 Logs: `journalctl -u needle-drop-deploy -n 50`
 
+Current implementation note: until the listener status gate check exists, the update script uses a placeholder "safe to update" policy (always safe).
+
 ## Development
 
 ```
