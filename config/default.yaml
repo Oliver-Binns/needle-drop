@@ -1,0 +1,37 @@
+# needle-drop default configuration
+# This file holds sensible production defaults for all settings.
+# Device-specific calibration and secrets go in /etc/needle-drop/config.yaml (not in Git).
+
+# Gate behavior: timing in seconds
+start_delay_s: 1.0        # Time sound must be above start_level before gate opens
+stop_delay_s: 25.0        # Time sound must be below stop_level before gate closes
+preroll_s: 1.5            # Audio kept in memory before streaming (MUST be >= start_delay_s + 0.5)
+fade_out_s: 0.0           # Optional fade-out when gate closes (0 = off, no fade)
+
+# Detection thresholds (from calibration; these are placeholders)
+start_level: -40.0        # dB: sound level to trigger start (calibration required)
+stop_level: -50.0         # dB: sound level to trigger stop (calibration required)
+
+# Optional audio processing (filter to emphasize crackle, ignore mains hum)
+# The original audio is always sent to the speaker; this is for detection only
+filter_type: null         # "highpass" or null (off)
+filter_freq_hz: 3000      # High-pass filter frequency if enabled (Hz)
+
+# OwnTone connection
+owntone_pipe: /srv/music/vinyl.pipe   # Path to the named pipe for audio hand-off
+owntone_timeout_s: 10                 # Timeout waiting for OwnTone to respond (s)
+
+# Speaker configuration
+speaker_name: null        # Placeholder: speaker name for OwnTone ("HomePod" etc)
+start_volume: null        # Optional: set volume when streaming begins (null = don't change)
+
+# Audio parameters (matching HiFiBerry DAC+ ADC and typical settings)
+sample_rate_hz: 44100     # Sample rate (Hz)
+bit_depth: 16             # Bit depth (16 or 24)
+channels: 2               # Stereo
+
+# Status page
+status_port: 8099         # HTTP port for status page and health checks
+
+# Logging
+log_level: INFO           # DEBUG, INFO, WARNING, ERROR
