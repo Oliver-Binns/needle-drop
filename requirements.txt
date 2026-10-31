@@ -1,8 +1,14 @@
+# Core dependencies (all platforms)
 PyYAML==6.0.1
 Flask==3.0.0
 numpy==1.24.3
 scipy==1.11.2
-pyaudio==0.2.13
 requests==2.31.0
+
+# Testing and linting
 pytest==7.4.2
 ruff==0.1.6
+
+# Audio I/O (Raspberry Pi only)
+# Requires system packages: sudo apt-get install portaudio19-dev python3-dev
+# pyaudio==0.2.13
