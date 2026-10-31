@@ -129,6 +129,7 @@ def run_update_script(
             "NEEDLEDROP_REPO_DIR": str(repo),
             "NEEDLEDROP_HEALTH_DELAY_S": "0",
             "NEEDLEDROP_PIP_BIN": str(fake_bin / "pip"),
+            "NEEDLEDROP_SYSTEMCTL_BIN": str(fake_bin / "systemctl"),
             "FAKE_SYSTEMCTL_LOG": str(systemctl_log),
             "FAKE_SYSTEMCTL_COUNT_FILE": str(systemctl_log.with_suffix(".count")),
             "FAKE_SYSTEMCTL_PATTERN": systemctl_pattern,

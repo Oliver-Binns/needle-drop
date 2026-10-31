@@ -112,7 +112,7 @@ The repository is public, so the Pi clones it over plain HTTPS and can only read
 ```bash
 # A low-privilege user that may restart only this one service
 sudo useradd -r -m -s /usr/sbin/nologin -G audio needledrop
-echo 'needledrop ALL=(root) NOPASSWD: /usr/bin/systemctl restart needle-drop' \
+echo 'needledrop ALL=(root) NOPASSWD: /usr/bin/systemctl restart needle-drop.service, /usr/bin/systemctl is-active --quiet needle-drop.service' \
   | sudo tee /etc/sudoers.d/needle-drop
 
 # Code and Python environment
