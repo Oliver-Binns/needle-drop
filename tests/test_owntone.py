@@ -34,8 +34,8 @@ class FakeSession:
         self.get_calls = []
         self.put_calls = []
 
-    def get(self, url, params=None, timeout=None):
-        self.get_calls.append((url, params, timeout))
+    def get(self, url, json=None, timeout=None):
+        self.get_calls.append((url, json, timeout))
         if not self.get_responses:
             raise AssertionError("unexpected GET request")
         response = self.get_responses.popleft()
@@ -43,8 +43,8 @@ class FakeSession:
             raise response
         return response
 
-    def put(self, url, params=None, timeout=None):
-        self.put_calls.append((url, params, timeout))
+    def put(self, url, json=None, timeout=None):
+        self.put_calls.append((url, json, timeout))
         return FakeResponse({})
 
 
@@ -69,8 +69,11 @@ def test_selects_matching_output_and_sets_requested_volume():
 
     assert output_id == "17"
     assert session.put_calls == [
-        ("http://127.0.0.1:3689/api/outputs/17", {"selected": "true"}, 10.0),
-        ("http://127.0.0.1:3689/api/outputs/17/volume", {"volume": 42}, 10.0),
+        (
+            "http://127.0.0.1:3689/api/outputs/17",
+            {"selected": True, "volume": 42},
+            10.0,
+        ),
     ]
 
 
@@ -114,9 +117,9 @@ def test_uses_default_start_volume_when_config_value_is_none():
         poll_interval_s=0,
     )
 
-    assert session.put_calls[1] == (
-        "http://127.0.0.1:3689/api/outputs/7/volume",
-        {"volume": 30},
+    assert session.put_calls[0] == (
+        "http://127.0.0.1:3689/api/outputs/7",
+        {"selected": True, "volume": 30},
         10.0,
     )
 
@@ -139,3 +142,25 @@ def test_http_error_raises_api_error():
         client.select_speaker_and_set_volume(
             "HomePod", start_volume=30, max_attempts=1, poll_interval_s=0
         )
+
+
+def test_deselect_speaker_sets_selected_false():
+    session = FakeSession(
+        [FakeResponse({"outputs": [{"id": "17", "name": "HomePod"}]})]
+    )
+    client = OwnToneClient(session=session)
+
+    output_id = client.deselect_speaker("HomePod")
+
+    assert output_id == "17"
+    assert session.put_calls == [
+        ("http://127.0.0.1:3689/api/outputs/17", {"selected": False}, 10.0),
+    ]
+
+
+def test_deselect_speaker_returns_none_when_not_found():
+    session = FakeSession([FakeResponse({"outputs": [{"id": "2", "name": "Kitchen"}]})])
+    client = OwnToneClient(session=session)
+
+    assert client.deselect_speaker("HomePod") is None
+    assert session.put_calls == []

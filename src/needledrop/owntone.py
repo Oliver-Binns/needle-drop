@@ -63,8 +63,7 @@ class OwnToneClient:
             attempts += 1
             output_id, candidates = self._find_output_id_by_name(speaker_name)
             if output_id is not None:
-                self._set_output_selected(output_id, selected=True)
-                self._set_output_volume(output_id, volume)
+                self._set_output(output_id, selected=True, volume=volume)
                 return output_id
 
             if max_attempts is not None and attempts >= max_attempts:
@@ -73,6 +72,21 @@ class OwnToneClient:
                     f"(candidates: {', '.join(candidates) or 'none'})"
                 )
             time.sleep(poll_interval_s)
+
+    def deselect_speaker(self, speaker_name: str) -> str | None:
+        """Deselect ``speaker_name`` so other AirPlay devices can take over.
+
+        Unlike :meth:`select_speaker_and_set_volume`, this makes a single
+        best-effort attempt and does not retry: releasing the speaker when
+        a record stops is a courtesy, not part of the no-audio-lost path.
+        Returns the output id that was deselected, or ``None`` if the
+        speaker was not found.
+        """
+        output_id, _ = self._find_output_id_by_name(speaker_name)
+        if output_id is None:
+            return None
+        self._set_output(output_id, selected=False)
+        return output_id
 
     def _find_output_id_by_name(
         self, speaker_name: str
@@ -111,29 +125,22 @@ class OwnToneClient:
             )
         return outputs
 
-    def _set_output_selected(self, output_id: str, *, selected: bool) -> None:
-        selected_value = "true" if selected else "false"
-        self._request(
-            "put",
-            f"/api/outputs/{output_id}",
-            params={"selected": selected_value},
-        )
-
-    def _set_output_volume(self, output_id: str, volume: int) -> None:
-        self._validate_volume(volume)
-        self._request(
-            "put",
-            f"/api/outputs/{output_id}/volume",
-            params={"volume": volume},
-        )
+    def _set_output(
+        self, output_id: str, *, selected: bool, volume: int | None = None
+    ) -> None:
+        body: dict[str, Any] = {"selected": selected}
+        if volume is not None:
+            self._validate_volume(volume)
+            body["volume"] = volume
+        self._request("put", f"/api/outputs/{output_id}", json=body)
 
     def _request(
-        self, method: str, path: str, params: dict[str, str | int] | None = None
+        self, method: str, path: str, json: dict[str, Any] | None = None
     ) -> requests.Response:
         url = f"{self._base_url}{path}"
         requester = getattr(self._session, method)
         try:
-            response = requester(url, params=params, timeout=self._timeout_s)
+            response = requester(url, json=json, timeout=self._timeout_s)
             response.raise_for_status()
         except requests.HTTPError as exc:
             raise OwnToneApiError(
