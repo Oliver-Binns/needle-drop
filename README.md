@@ -20,6 +20,7 @@ describe the target, not today's behaviour.
 - **Doesn't start when the player is off:** a "gate" decides when a record is really playing, ignoring hum and bumps.
 - **Loses no audio:** a short pre-roll buffer means the needle landing and the first notes aren't missed. The HomePod plays a couple of seconds behind, which is normal for AirPlay.
 - **Untouched sound:** nothing is added to or removed from the audio.
+- **Friendly now-playing display:** while streaming, AirPlay clients show project artwork plus rotating synthetic now-playing text.
 - **Starts itself after a power cut:** no logging in required.
 - **Updates itself:** the Pi checks this repo and updates when `main` changes, rolling back if something goes wrong, and never interrupting a record.
 - **Tunable:** start delay, stop delay, pre-roll and thresholds are all settings, with a calibration command to find good values.

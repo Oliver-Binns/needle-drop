@@ -14,6 +14,7 @@ import signal
 import sys
 import threading
 from collections.abc import Callable
+from pathlib import Path
 
 import requests
 import yaml
@@ -23,6 +24,13 @@ from needledrop.audio_source import PyAudioSource
 from needledrop.config import Config, load_config
 from needledrop.gate import Gate
 from needledrop.gated_source import GatedSource
+from needledrop.now_playing import (
+    DEFAULT_ALBUM_OPTIONS,
+    DEFAULT_ARTIST_OPTIONS,
+    DEFAULT_TITLE_OPTIONS,
+    MetadataRotator,
+    NowPlayingController,
+)
 from needledrop.owntone import OwnToneClient, OwnToneError
 from needledrop.pipeline import AudioPipeline
 
@@ -65,6 +73,20 @@ def _make_speaker_callbacks(
     """
     start_volume = None if config.start_volume is None else int(config.start_volume)
 
+    artwork_url = _resolve_now_playing_artwork_url(config)
+    metadata_controller = NowPlayingController(
+        client,
+        MetadataRotator(
+            title_options=DEFAULT_TITLE_OPTIONS,
+            artist_options=DEFAULT_ARTIST_OPTIONS,
+            album_options=DEFAULT_ALBUM_OPTIONS,
+            title_interval_s=config.now_playing_title_interval_s,
+            artist_interval_s=config.now_playing_artist_interval_s,
+            album_interval_s=config.now_playing_album_interval_s,
+        ),
+        artwork_url=artwork_url,
+    )
+
     def on_start() -> None:
         try:
             client.select_speaker_and_set_volume(config.speaker_name, start_volume)
@@ -72,8 +94,16 @@ def _make_speaker_callbacks(
             log.warning("could not select speaker %r: %s", config.speaker_name, exc)
         else:
             log.info("streaming to speaker %r", config.speaker_name)
+        try:
+            metadata_controller.start_streaming()
+        except (OwnToneError, requests.RequestException) as exc:
+            log.warning("could not set now-playing metadata: %s", exc)
 
     def on_stop() -> None:
+        try:
+            metadata_controller.stop_streaming()
+        except (OwnToneError, requests.RequestException) as exc:
+            log.warning("could not clear now-playing metadata: %s", exc)
         try:
             client.deselect_speaker(config.speaker_name)
         except (OwnToneError, requests.RequestException) as exc:
@@ -82,6 +112,22 @@ def _make_speaker_callbacks(
             log.info("released speaker %r", config.speaker_name)
 
     return on_start, on_stop
+
+
+def _resolve_now_playing_artwork_url(config: Config) -> str | None:
+    configured = config.now_playing_artwork_path.strip()
+    if not configured:
+        return None
+
+    path = Path(configured)
+    if not path.is_absolute():
+        path = Path(__file__).resolve().parents[2] / path
+
+    resolved = path.resolve()
+    if not resolved.exists():
+        log.warning("now-playing artwork file not found at %s", resolved)
+        return None
+    return resolved.as_uri()
 
 
 def _open_pipeline(

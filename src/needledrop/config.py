@@ -47,6 +47,12 @@ class Config:
     speaker_name: str | None
     start_volume: float | None
 
+    # Now-playing metadata
+    now_playing_artwork_path: str
+    now_playing_title_interval_s: float
+    now_playing_artist_interval_s: float
+    now_playing_album_interval_s: float
+
     # Audio parameters
     sample_rate_hz: int
     bit_depth: int
@@ -69,6 +75,12 @@ class Config:
                 f"preroll_s ({self.preroll_s}) must be >= start_delay_s ({self.start_delay_s}) + 0.5. "
                 "Pre-roll exists to cover the start delay so no audio is lost."
             )
+        if (
+            self.now_playing_title_interval_s <= 0
+            or self.now_playing_artist_interval_s <= 0
+            or self.now_playing_album_interval_s <= 0
+        ):
+            raise ValueError("now-playing rotation intervals must be greater than zero")
 
 
 def _get_project_root() -> Path:
@@ -127,6 +139,10 @@ def _dict_to_config(data: dict[str, Any]) -> Config:
         start_volume=float(data["start_volume"])
         if data.get("start_volume") is not None
         else None,
+        now_playing_artwork_path=str(data["now_playing_artwork_path"]),
+        now_playing_title_interval_s=float(data["now_playing_title_interval_s"]),
+        now_playing_artist_interval_s=float(data["now_playing_artist_interval_s"]),
+        now_playing_album_interval_s=float(data["now_playing_album_interval_s"]),
         sample_rate_hz=int(data["sample_rate_hz"]),
         bit_depth=int(data["bit_depth"]),
         channels=int(data["channels"]),

@@ -26,6 +26,12 @@ owntone_timeout_s: 10                 # Timeout waiting for OwnTone to respond (
 speaker_name: null        # Placeholder: speaker name for OwnTone ("HomePod" etc)
 start_volume: null        # Optional: set volume when streaming begins (null = don't change)
 
+# Now-playing metadata (shown by AirPlay clients via OwnTone while streaming)
+now_playing_artwork_path: assets/needle-drop-now-playing.jpg
+now_playing_title_interval_s: 180      # Rotate synthetic title every 3 minutes
+now_playing_artist_interval_s: 1800    # Rotate synthetic artist every 30 minutes
+now_playing_album_interval_s: 1800     # Rotate synthetic album every 30 minutes
+
 # Audio parameters (matching HiFiBerry DAC+ ADC and typical settings)
 sample_rate_hz: 44100     # Sample rate (Hz)
 bit_depth: 16             # Bit depth (16 or 24)
