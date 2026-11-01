@@ -29,6 +29,10 @@ def default_config_data() -> dict:
         "owntone_timeout_s": 10,
         "speaker_name": None,
         "start_volume": None,
+        "now_playing_artwork_path": "assets/needle-drop-now-playing.jpg",
+        "now_playing_title_interval_s": 180,
+        "now_playing_artist_interval_s": 1800,
+        "now_playing_album_interval_s": 1800,
         "sample_rate_hz": 44100,
         "bit_depth": 16,
         "channels": 2,
@@ -62,6 +66,7 @@ class TestConfigLoading:
         assert hasattr(config, "filter_type")
         assert hasattr(config, "owntone_pipe")
         assert hasattr(config, "speaker_name")
+        assert hasattr(config, "now_playing_artwork_path")
         assert hasattr(config, "sample_rate_hz")
         assert hasattr(config, "status_port")
 
@@ -219,6 +224,15 @@ class TestConfigTypes:
         assert config.speaker_name is None or isinstance(config.speaker_name, str)
         assert config.start_volume is None or isinstance(config.start_volume, float)
         assert config.filter_type is None or isinstance(config.filter_type, str)
+        assert isinstance(config.now_playing_artwork_path, str)
+
+    def test_now_playing_intervals_must_be_positive(self, default_config_data):
+        config_data = default_config_data.copy()
+        config_data["now_playing_title_interval_s"] = 0
+
+        config = Config(**config_data)
+        with pytest.raises(ValueError, match="now-playing rotation intervals"):
+            config.validate()
 
 
 class TestConfigErrors:

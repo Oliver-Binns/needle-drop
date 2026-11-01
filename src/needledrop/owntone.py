@@ -88,6 +88,37 @@ class OwnToneClient:
         self._set_output(output_id, selected=False)
         return output_id
 
+    def set_now_playing_metadata(
+        self,
+        *,
+        title: str,
+        artist: str,
+        album: str,
+        artwork_url: str | None,
+    ) -> None:
+        """Update OwnTone's current queue item metadata for AirPlay clients."""
+        params: dict[str, str] = {
+            "title": title,
+            "artist": artist,
+            "album": album,
+        }
+        if artwork_url:
+            params["artwork_url"] = artwork_url
+        self._request("put", "/api/queue/items/now_playing", params=params)
+
+    def clear_now_playing_metadata(self) -> None:
+        """Clear synthetic now-playing metadata after streaming has stopped."""
+        self._request(
+            "put",
+            "/api/queue/items/now_playing",
+            params={
+                "title": "",
+                "artist": "",
+                "album": "",
+                "artwork_url": "",
+            },
+        )
+
     def _find_output_id_by_name(
         self, speaker_name: str
     ) -> tuple[str | None, list[str]]:
@@ -135,12 +166,16 @@ class OwnToneClient:
         self._request("put", f"/api/outputs/{output_id}", json=body)
 
     def _request(
-        self, method: str, path: str, json: dict[str, Any] | None = None
+        self,
+        method: str,
+        path: str,
+        json: dict[str, Any] | None = None,
+        params: dict[str, str] | None = None,
     ) -> requests.Response:
         url = f"{self._base_url}{path}"
         requester = getattr(self._session, method)
         try:
-            response = requester(url, json=json, timeout=self._timeout_s)
+            response = requester(url, json=json, params=params, timeout=self._timeout_s)
             response.raise_for_status()
         except requests.HTTPError as exc:
             raise OwnToneApiError(

@@ -30,6 +30,10 @@ def make_config(**overrides) -> Config:
         "owntone_timeout_s": 10,
         "speaker_name": "Living Room",
         "start_volume": 25.0,
+        "now_playing_artwork_path": "assets/needle-drop-now-playing.jpg",
+        "now_playing_title_interval_s": 180.0,
+        "now_playing_artist_interval_s": 1800.0,
+        "now_playing_album_interval_s": 1800.0,
         "sample_rate_hz": 44100,
         "bit_depth": 16,
         "channels": 2,
@@ -123,6 +127,7 @@ def test_on_start_callback_selects_speaker_and_sets_volume():
     on_start()
 
     assert client.select_speaker_and_set_volume.call_args.args == ("Living Room", 25)
+    assert client.set_now_playing_metadata.call_count == 1
 
 
 def test_on_start_callback_logs_and_swallows_errors():
@@ -139,6 +144,7 @@ def test_on_stop_callback_deselects_speaker():
 
     on_stop()
 
+    assert client.clear_now_playing_metadata.call_count == 1
     assert client.deselect_speaker.call_args.args == ("Living Room",)
 
 

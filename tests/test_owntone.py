@@ -34,8 +34,8 @@ class FakeSession:
         self.get_calls = []
         self.put_calls = []
 
-    def get(self, url, json=None, timeout=None):
-        self.get_calls.append((url, json, timeout))
+    def get(self, url, json=None, params=None, timeout=None):
+        self.get_calls.append((url, json, params, timeout))
         if not self.get_responses:
             raise AssertionError("unexpected GET request")
         response = self.get_responses.popleft()
@@ -43,8 +43,8 @@ class FakeSession:
             raise response
         return response
 
-    def put(self, url, json=None, timeout=None):
-        self.put_calls.append((url, json, timeout))
+    def put(self, url, json=None, params=None, timeout=None):
+        self.put_calls.append((url, json, params, timeout))
         return FakeResponse({})
 
 
@@ -72,6 +72,7 @@ def test_selects_matching_output_and_sets_requested_volume():
         (
             "http://127.0.0.1:3689/api/outputs/17",
             {"selected": True, "volume": 42},
+            None,
             10.0,
         ),
     ]
@@ -120,6 +121,7 @@ def test_uses_default_start_volume_when_config_value_is_none():
     assert session.put_calls[0] == (
         "http://127.0.0.1:3689/api/outputs/7",
         {"selected": True, "volume": 30},
+        None,
         10.0,
     )
 
@@ -154,7 +156,7 @@ def test_deselect_speaker_sets_selected_false():
 
     assert output_id == "17"
     assert session.put_calls == [
-        ("http://127.0.0.1:3689/api/outputs/17", {"selected": False}, 10.0),
+        ("http://127.0.0.1:3689/api/outputs/17", {"selected": False}, None, 10.0),
     ]
 
 
@@ -164,3 +166,45 @@ def test_deselect_speaker_returns_none_when_not_found():
 
     assert client.deselect_speaker("HomePod") is None
     assert session.put_calls == []
+
+
+def test_set_now_playing_metadata_uses_queue_now_playing_endpoint():
+    session = FakeSession([])
+    client = OwnToneClient(session=session)
+
+    client.set_now_playing_metadata(
+        title="Now Spinning...",
+        artist="Vinyl Record",
+        album="Living Room Sessions",
+        artwork_url="file:///opt/needle-drop/assets/needle-drop-now-playing.jpg",
+    )
+
+    assert session.put_calls == [
+        (
+            "http://127.0.0.1:3689/api/queue/items/now_playing",
+            None,
+            {
+                "title": "Now Spinning...",
+                "artist": "Vinyl Record",
+                "album": "Living Room Sessions",
+                "artwork_url": "file:///opt/needle-drop/assets/needle-drop-now-playing.jpg",
+            },
+            10.0,
+        )
+    ]
+
+
+def test_clear_now_playing_metadata_empties_queue_fields():
+    session = FakeSession([])
+    client = OwnToneClient(session=session)
+
+    client.clear_now_playing_metadata()
+
+    assert session.put_calls == [
+        (
+            "http://127.0.0.1:3689/api/queue/items/now_playing",
+            None,
+            {"title": "", "artist": "", "album": "", "artwork_url": ""},
+            10.0,
+        )
+    ]
