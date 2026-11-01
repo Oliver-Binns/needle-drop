@@ -4,6 +4,16 @@ Drop the needle, hear the record. **needle-drop** listens to your record player 
 
 The crackle is kept. The sound is passed along untouched, with no clean-up, noise reduction or filtering.
 
+## Project status
+
+The Pi setup, auto-deployment, the core audio path (HiFiBerry → needle-drop
+→ OwnTone → speaker) and the hands-free gate are built and running:
+needle-drop now starts streaming automatically when a record is detected and
+stops (releasing the speaker for other AirPlay devices) when it goes quiet.
+The `calibrate` command and the status page described below are the next
+things being built — until they land, those two parts of the features list
+describe the target, not today's behaviour.
+
 ## Features
 
 - **Hands-free:** needle down means sound, and it stops by itself after the record finishes.
@@ -87,7 +97,13 @@ The speaker may play a couple of seconds behind the record, but every moment of 
 - When the gate closes, everything already sent is played out in full.
 - There is no catch-up, skipping or speeding up.
 
-## Quick start *(planned)*
+## Quick start
+
+Steps 1–3 below work today, and needle-drop now starts and stops streaming
+automatically (see "Project status"). Step 4 (`calibrate`) and the status
+page are not built yet, so the start/stop levels in `config/default.yaml`
+are placeholders until calibration lands — tune them by ear in the meantime;
+skip step 4 for now.
 
 ### 1. Prepare the Pi
 
@@ -159,7 +175,7 @@ If a new version adds a setting, the program falls back to the default when your
 
 Volume is controlled on the speaker itself: the touch panel on top of an original HomePod, Siri or the Home app. By default needle-drop doesn't touch the volume. An optional `start_volume` setting sets a level when streaming begins.
 
-## Status page *(planned)*
+## Status page *(not yet built — see "Project status")*
 
 `http://<pi-address>:8099/status` shows the gate state, current sound level, thresholds and the undelivered-audio counter. It reports healthy only when the HiFiBerry is open and OwnTone responds.
 

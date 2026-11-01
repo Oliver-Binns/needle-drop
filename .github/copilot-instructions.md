@@ -7,16 +7,19 @@ timer files, `config/default.yaml`, `requirements.txt`, `docs/design.md`, and
 CI (ruff + pytest in `.github/workflows/validate-pr.yml`). The audio path is
 implemented (`audio_source.py`, `audio_sink.py`, `pipeline.py`: sound card →
 queue → OwnTone pipe, with an undelivered-bytes counter; tested in
-`tests/test_pipeline.py`). `__main__.py` wires the config reader, audio path and
-OwnTone speaker selection into an always-on streamer (no gate yet; it refuses to
-start without `speaker_name`). The gate state machine is implemented
+`tests/test_pipeline.py`). The gate state machine is implemented
 (`level.py`: dBFS level metering with optional high-pass pre-emphasis for
 crackle detection; `gate.py`: Idle → Arming → Streaming → Cooling down → Idle,
 with a pre-roll buffer and a `fade_out_s` on/off switch — the actual fade
 shaping is a later task, issue #23; tested in `tests/test_level.py` and
-`tests/test_gate.py`). The gate is **not yet wired into `__main__.py`**
-(that's issue #17); the status page and calibrate command are also
-**not yet implemented**. The gate design
+`tests/test_gate.py`). The gate is now **wired into `__main__.py`** (issue
+#17): `gated_source.py` wraps the sound card source with the gate so only
+audio the gate forwards reaches `AudioPipeline`, and selects the configured
+OwnTone speaker/volume when the gate opens, releasing it again (so other
+AirPlay devices can take over) once the gate fully closes (tested in
+`tests/test_gated_source.py` and `tests/test_main_entrypoint.py`; it refuses
+to start without `speaker_name`). The status page and calibrate command are
+**not yet implemented** (issues #22 and #18). The gate design
 below is the target; follow it when implementing the listener unless the user
 directs otherwise. Keep this section current as features land.
 
@@ -35,7 +38,7 @@ Record player → cable → HiFiBerry → needle-drop → OwnTone → HomePod
 ## Repository layout
 
 ```
-src/needledrop/        the listener program (always-on streaming; gate not yet implemented)
+src/needledrop/        the listener program (gated start/stop streaming)
 tests/                  automatic checks
 config/default.yaml     standard settings (committed, sensible defaults)
 requirements.txt

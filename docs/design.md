@@ -283,15 +283,22 @@ In words:
 
 Each step has a pass/fail check, so problems show up early.
 
-| Step | Work | Done when |
-|---|---|---|
-| 1. Hardware | Fit HiFiBerry onto the Pi's header, install Raspberry Pi OS Lite, set up Wi-Fi and remote login, switch turntable to LINE | `arecord -l` lists the HiFiBerry |
-| 2. Capture | Record a short clip from a playing record | The clip sounds right, with no hum or clipping. Adjust input volume if needed |
-| 3. AirPlay | Install OwnTone, pair with HomePod, stream a test file, then pipe in a recording by hand, including one that ends abruptly | Vinyl audio is heard on the HomePod, and the last notes of a clip are played in full. **This is the biggest risk, so do it before writing any real code** |
-| 4. Listener | Write the gate, pre-roll, fade-out, status page, calibrate command | All gate behaviours work in tests, then live |
-| 5. Run as a service | Install the listener under systemd, and enable it, OwnTone and the update timer to start at boot (see "Starting by itself after a power cut") | Pulling the power and plugging it back in brings everything back with no help |
-| 6. Auto-update | Repository, checks, update script, timer, rollback | A merged change appears on the Pi without you touching it. A deliberately broken change rolls back |
-| 7. Tidy | Optional: make the SD card read-only to survive power cuts, switch on automatic security updates | Pulling the plug causes no damage |
+> **Actual execution order differs from the numbering below:** steps 1, 5 and
+> 6 (Pi setup and auto-deployment) were tackled first, so every later change
+> could reach the headless Pi without manual copying. Steps 2–3 (capture,
+> AirPlay) then proved the audio chain end-to-end, and step 4 shipped as a
+> real always-on MVP before the gate was added on top of it — not as a
+> throwaway prototype. Tracked as GitHub issues #2–#25; see "Status" below.
+
+| Step | Work | Done when | Status |
+|---|---|---|---|
+| 1. Hardware | Fit HiFiBerry onto the Pi's header, install Raspberry Pi OS Lite, set up Wi-Fi and remote login, switch turntable to LINE | `arecord -l` lists the HiFiBerry | ✅ Done |
+| 2. Capture | Record a short clip from a playing record | The clip sounds right, with no hum or clipping. Adjust input volume if needed | ✅ Done |
+| 3. AirPlay | Install OwnTone, pair with HomePod, stream a test file, then pipe in a recording by hand, including one that ends abruptly | Vinyl audio is heard on the HomePod, and the last notes of a clip are played in full. **This is the biggest risk, so do it before writing any real code** | ✅ Done |
+| 4. Listener | Write the gate, pre-roll, fade-out, status page, calibrate command | All gate behaviours work in tests, then live | 🚧 In progress — config, audio path, OwnTone client, the gate (with pre-roll) and the hands-free listener are built and running; fade-out shaping, the status page and calibrate command are not yet implemented |
+| 5. Run as a service | Install the listener under systemd, and enable it, OwnTone and the update timer to start at boot (see "Starting by itself after a power cut") | Pulling the power and plugging it back in brings everything back with no help | ✅ Done |
+| 6. Auto-update | Repository, checks, update script, timer, rollback | A merged change appears on the Pi without you touching it. A deliberately broken change rolls back | ✅ Done |
+| 7. Tidy | Optional: make the SD card read-only to survive power cuts, switch on automatic security updates | Pulling the plug causes no damage | ⬜ Not started |
 
 ## 8. How we'll know it works
 

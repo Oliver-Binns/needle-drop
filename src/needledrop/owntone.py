@@ -74,6 +74,21 @@ class OwnToneClient:
                 )
             time.sleep(poll_interval_s)
 
+    def deselect_speaker(self, speaker_name: str) -> str | None:
+        """Deselect ``speaker_name`` so other AirPlay devices can take over.
+
+        Unlike :meth:`select_speaker_and_set_volume`, this makes a single
+        best-effort attempt and does not retry: releasing the speaker when
+        a record stops is a courtesy, not part of the no-audio-lost path.
+        Returns the output id that was deselected, or ``None`` if the
+        speaker was not found.
+        """
+        output_id, _ = self._find_output_id_by_name(speaker_name)
+        if output_id is None:
+            return None
+        self._set_output_selected(output_id, selected=False)
+        return output_id
+
     def _find_output_id_by_name(
         self, speaker_name: str
     ) -> tuple[str | None, list[str]]:

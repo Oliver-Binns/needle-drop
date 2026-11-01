@@ -139,3 +139,25 @@ def test_http_error_raises_api_error():
         client.select_speaker_and_set_volume(
             "HomePod", start_volume=30, max_attempts=1, poll_interval_s=0
         )
+
+
+def test_deselect_speaker_sets_selected_false():
+    session = FakeSession(
+        [FakeResponse({"outputs": [{"id": "17", "name": "HomePod"}]})]
+    )
+    client = OwnToneClient(session=session)
+
+    output_id = client.deselect_speaker("HomePod")
+
+    assert output_id == "17"
+    assert session.put_calls == [
+        ("http://127.0.0.1:3689/api/outputs/17", {"selected": "false"}, 10.0),
+    ]
+
+
+def test_deselect_speaker_returns_none_when_not_found():
+    session = FakeSession([FakeResponse({"outputs": [{"id": "2", "name": "Kitchen"}]})])
+    client = OwnToneClient(session=session)
+
+    assert client.deselect_speaker("HomePod") is None
+    assert session.put_calls == []
